@@ -25,6 +25,7 @@
 // File: lib/src/flutter_multi_table_controller.dart
 
 part of '../../flutter_multi_table.dart';
+
 /// The `FlutterMultiTableController` class is used to manage table data.
 /// It provides methods to set, update, and retrieve cell values,
 /// and handle validation and errors for dropdown fields.

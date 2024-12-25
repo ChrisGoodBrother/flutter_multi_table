@@ -1,3 +1,10 @@
+## 0.0.2 - 2024-26-12
+
+### Bug Fixes
+- Fixed formatting issues in controller and widget files
+- Corrected documentation formatting
+- Resolved static analysis warnings
+
 ## 0.0.1 - 2024-26-12
 
 ### intial Release

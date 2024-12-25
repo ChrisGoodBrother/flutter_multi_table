@@ -44,4 +44,4 @@ jobs:
         with:
           credentialJson: ${{ secrets.PUB_CREDENTIALS_JSON }} # Menggunakan secrets untuk autentikasi.
           flutter: true # Menentukan bahwa paket menggunakan Flutter.
-          skipTests: true # Melewati pengujian sebelum publikasi (opsional).
+          skipTests: false # Melewati pengujian sebelum publikasi (opsional).

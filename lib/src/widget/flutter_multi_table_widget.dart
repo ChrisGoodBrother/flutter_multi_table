@@ -23,7 +23,6 @@
 
 part of '../../flutter_multi_table.dart';
 
-
 /// The `FlutterMultiTable` widget is a customizable table component.
 /// It uses `FlutterMultiTableController` to manage the table data and `FlutterMultiTableConfig` to define its configuration.
 class FlutterMultiTable extends StatefulWidget {

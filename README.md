@@ -7,7 +7,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/adampermana/flutter_multi_table?logo=github)](https://github.com/adampermana/flutter_multi_table/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/adampermana/flutter_multi_table?logo=github)](https://github.com/adampermana/flutter_multi_table/network)
 
-A powerful and customizable data table widget for Flutter applications that supports both editable cells and dropdown selections.
+A Flutter packages for creating dynamic, multi-column tables with features like dropdowns, validation, and read-only cells. Ideal for interactive table inputs.
 
 ## 💰 You can help me by Donating
 

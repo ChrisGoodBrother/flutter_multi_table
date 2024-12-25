@@ -1,6 +1,6 @@
 name: flutter_multi_table
-description: A Flutter plugin for creating and managing dynamic, multi-column tables with customizable features such as dropdowns, validation, read-only cells, and more. Ideal for applications that require interactive table inputs and structured data handling.
-version: 0.0.1
+description: A Flutter packages for creating dynamic, multi-column tables with features like dropdowns, validation, and read-only cells. Ideal for interactive table inputs.
+version: 0.0.2
 homepage: https://github.com/adampermana/flutter_multi_table.git
 repository: https://github.com/adampermana/flutter_multi_table.git
 issue_tracker: https://github.com/adampermana/flutter_multi_table/issues
