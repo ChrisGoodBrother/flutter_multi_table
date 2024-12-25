@@ -1,0 +1,47 @@
+name: Publish to pub.dev
+
+# Menjalankan workflow ini setiap kali ada push ke tag versi (misalnya v1.0.0) atau ketika release diterbitkan.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*" # Tag versi harus mengikuti pola ini (contoh: v1.0.0)
+  release:
+    types: [published] # Workflow ini juga akan berjalan ketika ada release baru yang diterbitkan.
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # Memberikan izin token identitas untuk akses.
+    runs-on: ubuntu-latest # Menentukan runner GitHub yang digunakan (Ubuntu terbaru).
+
+    steps:
+      # 📚 Langkah pertama: Checkout repository
+      - name: 📚 Checkout
+        uses: actions/checkout@v3 # Menggunakan action resmi untuk checkout kode dari repo.
+
+      # 🎯 Langkah kedua: Setup Flutter SDK
+      - name: Setup Flutter 🎯
+        uses: subosito/flutter-action@v2 # Action untuk mengatur Flutter SDK.
+        with:
+          channel: "stable" # Menggunakan channel Flutter "stable".
+          cache: true # Mengaktifkan cache untuk mempercepat proses build di masa mendatang.
+
+      # 📦 Langkah ketiga: Install dependencies
+      - name: Install dependencies 📦
+        run: flutter pub get # Mengambil semua dependensi yang tercantum di pubspec.yaml.
+
+      # 🕵️ Langkah keempat: Analisis kode dengan Flutter Analyze
+      - name: 🕵️ Analyze
+        run: flutter analyze . # Menganalisis kode untuk mendeteksi potensi masalah.
+
+      # ✅ Langkah kelima: Validasi pubspec.yaml
+      - name: ✅ Validate pubspec.yaml
+        run: dart pub publish --dry-run # Menjalankan simulasi publikasi untuk memvalidasi pubspec.yaml dan dependensi.
+
+      # 🚀 Langkah terakhir: Publikasikan paket ke pub.dev
+      - name: Publish to pub.dev 🚀
+        uses: k-paxian/dart-package-publisher@v1.6 # Action untuk mempublikasikan paket Dart ke pub.dev.
+        with:
+          credentialJson: ${{ secrets.PUB_CREDENTIALS_JSON }} # Menggunakan secrets untuk autentikasi.
+          flutter: true # Menentukan bahwa paket menggunakan Flutter.
+          skipTests: true # Melewati pengujian sebelum publikasi (opsional).
