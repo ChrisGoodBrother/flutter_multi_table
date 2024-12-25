@@ -17,7 +17,7 @@ A Flutter packages for creating dynamic, multi-column tables with features like 
 
 |                                          Input Data Mode Potrait                                           |                                                       Get Data Mode Potrait                                                       |
 | :--------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------: |
-| ![input-data-table](https://github.com/adampermana/flutter_multi_table/blob/dev/demo/input-data-table.gif) | ![result-data-table](https://raw.githubusercontent.com/adampermana/flutter_multi_table/refs/heads/dev/demo/result-data-table.gif) |
+| ![input-data-table](https://raw.githubusercontent.com/adampermana/flutter_multi_table/refs/heads/master/demo/input-data-table.gif) | ![result-data-table](https://raw.githubusercontent.com/adampermana/flutter_multi_table/refs/heads/dev/demo/result-data-table.gif) |
 
 |                                                    Input Data Mode Landscape                                                     |                                                      Get Data Mode Landscape                                                       |
 | :------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------: |
