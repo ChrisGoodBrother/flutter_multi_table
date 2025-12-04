@@ -53,9 +53,7 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
       border: TableBorder.all(),
       columnWidths: {
         for (int i = 0; i < widget.config.headers.length; i++)
-          i: widget.config.cellWidth != null
-              ? FixedColumnWidth(widget.config.cellWidth!)
-              : const FlexColumnWidth(),
+          i: widget.config.cellWidth != null ? FixedColumnWidth(widget.config.cellWidth!) : const FlexColumnWidth(),
       },
       children: [
         TableRow(
@@ -63,9 +61,7 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
             color: Colors.red,
             shape: BoxShape.rectangle,
           ),
-          children: widget.config.headers
-              .map((header) => _buildHeaderCell(header))
-              .toList(),
+          children: widget.config.headers.map((header) => _buildHeaderCell(header)).toList(),
         ),
         ...widget.controller.tableData.asMap().entries.map((entry) {
           int rowIndex = entry.key;
@@ -85,15 +81,23 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   ///
   /// [text] is the header text to display.
   Widget _buildHeaderCell(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: widget.config.headerTextStyle ??
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onLongPress: () async {
+        widget.config.onHeaderLongPress?.call(text);
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: widget.config.headerTextStyle ?? const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
         ),
       ),
     );
@@ -104,94 +108,11 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   /// [row] is the row index of the cell.
   /// [column] is the column index of the cell.
   /// [controller] is the text controller for the cell.
-  Widget _buildEditableCell(
-      int row, int column, TextEditingController controller) {
+  Widget _buildEditableCell(int row, int column, TextEditingController controller) {
     bool isReadOnly = widget.config.isReadOnly?.call(row, column) ?? false;
     bool isDropdown = widget.config.isDropdown?.call(row, column) ?? false;
 
-    if (isDropdown) {
-      return _buildDropdownCell(row, column, controller, isReadOnly);
-    } else {
-      return _buildTextFieldCell(row, column, controller, isReadOnly);
-    }
-  }
-
-  /// Builds a dropdown cell widget.
-  ///
-  /// [row] is the row index of the cell.
-  /// [column] is the column index of the cell.
-  /// [controller] is the text controller for the cell.
-  /// [isReadOnly] indicates whether the dropdown is read-only.
-  Widget _buildDropdownCell(
-      int row, int column, TextEditingController controller, bool isReadOnly) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
-        child: Column(
-          children: [
-            DropdownButtonFormField<String>(
-              style: const TextStyle(color: Colors.black),
-              alignment: Alignment.center,
-              icon: const Icon(
-                Icons.keyboard_arrow_down_outlined,
-                size: 14,
-                color: Colors.black54,
-              ),
-              isExpanded: true,
-              value: controller.text.isNotEmpty ? controller.text : null,
-              hint: Text(
-                widget.config.hint,
-                textAlign: TextAlign.center,
-              ),
-              onChanged: isReadOnly
-                  ? null
-                  : (value) {
-                      setState(() {
-                        controller.text = value!;
-                        widget.config.onChanged?.call(row, column, value);
-                        String? error = widget.config.dropdownValidator
-                            ?.call(row, column, value);
-                        widget.controller.setDropdownError(row, column, error);
-                      });
-                    },
-              items:
-                  widget.config.dropdownOptions?.map<DropdownMenuItem<String>>(
-                (option) {
-                  return DropdownMenuItem<String>(
-                    alignment: Alignment.center,
-                    value: option,
-                    child: Text(
-                      option,
-                      style: const TextStyle(
-                          fontSize: 7, fontWeight: FontWeight.w400),
-                    ),
-                  );
-                },
-              ).toList(),
-              validator: (value) {
-                if (!isReadOnly) {
-                  return widget.config.dropdownValidator
-                      ?.call(row, column, value);
-                }
-                return null;
-              },
-              decoration: InputDecoration(
-                errorText: widget.controller.getDropdownError(row, column),
-                errorStyle: widget.config.errorTextStyle ??
-                    const TextStyle(color: Colors.red, fontSize: 12),
-                border: InputBorder.none,
-                enabledBorder:
-                    const OutlineInputBorder(borderSide: BorderSide.none),
-                contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                focusedBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return _buildText(row, column, controller, isReadOnly);
   }
 
   /// Builds a text field cell widget.
@@ -200,8 +121,7 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   /// [column] is the column index of the cell.
   /// [controller] is the text controller for the cell.
   /// [isReadOnly] indicates whether the text field is read-only.
-  Widget _buildTextFieldCell(
-      int row, int column, TextEditingController controller, bool isReadOnly) {
+  Widget _buildText(int row, int column, TextEditingController controller, bool isReadOnly) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
@@ -211,36 +131,11 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
             minWidth: widget.config.cellWidth ?? 100.0,
           ),
           child: IntrinsicHeight(
-            child: TextFormField(
-              keyboardType: widget.config.textInputType,
-              controller: controller,
+            child: Text(
+              "",
               maxLines: null,
-              decoration: InputDecoration(
-                hintText: widget.config.hint,
-                hintStyle: widget.config.hintTextStyle,
-                border: InputBorder.none,
-                enabledBorder:
-                    const OutlineInputBorder(borderSide: BorderSide.none),
-                focusedBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
-                errorStyle: widget.config.errorTextStyle,
-              ),
               textAlign: TextAlign.center,
-              enableInteractiveSelection: !isReadOnly,
-              readOnly: isReadOnly,
               style: widget.config.cellTextStyle,
-              onChanged: (value) {
-                widget.config.onChanged?.call(row, column, value);
-              },
-              validator: (value) {
-                if (!isReadOnly) {
-                  return widget.config.validator
-                      ?.call(row, column, value ?? '');
-                }
-                return null;
-              },
             ),
           ),
         ),

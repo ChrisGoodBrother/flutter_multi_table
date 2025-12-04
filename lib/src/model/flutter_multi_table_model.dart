@@ -116,6 +116,8 @@ class FlutterMultiTableConfig {
   /// Validator for dropdown cells.
   final String? Function(int row, int column, String? value)? dropdownValidator;
 
+  final void Function(String header)? onHeaderLongPress;
+
   /// Text style for column headers.
   final TextStyle? headerTextStyle;
 
@@ -154,6 +156,7 @@ class FlutterMultiTableConfig {
     this.onChanged,
     this.validator,
     this.dropdownValidator,
+    this.onHeaderLongPress,
     this.headerTextStyle,
     this.headerBoxColor,
     this.cellTextStyle,
