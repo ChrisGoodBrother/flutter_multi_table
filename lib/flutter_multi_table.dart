@@ -1,6 +1,7 @@
 library flutter_multi_table;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 /* =========== Part Library ========= */
 part 'src/controller/flutter_multi_table_controller.dart';

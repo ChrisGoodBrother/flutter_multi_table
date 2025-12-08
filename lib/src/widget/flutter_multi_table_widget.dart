@@ -1,18 +1,10 @@
 /*============================================================
- Module Name       : flutter_multi_table_widget.dart
- Date of Creation  : 2024/08/03
- Name of Creator   : Adam Permana
- History of Modifications:
- - 10/09/2024 - Initial creation of the FlutterMultiTable widget.
- - 2024/12/19 - Use part of.
-
  Summary           : Implementation of a customizable table widget for Flutter
                      using StatelessWidget.
 
  Functions         :
  - _buildHeaderCell(String text): Builds header cell widget
  - _buildEditableCell(...): Builds editable cell widget
- - _buildDropdownCell(...): Builds dropdown cell widget
  - _buildTextFieldCell(...): Builds text field cell widget
 
  Variables         :
@@ -25,7 +17,7 @@ part of '../../flutter_multi_table.dart';
 
 /// The `FlutterMultiTable` widget is a customizable table component.
 /// It uses `FlutterMultiTableController` to manage the table data and `FlutterMultiTableConfig` to define its configuration.
-class FlutterMultiTable extends StatefulWidget {
+class FlutterMultiTable extends HookWidget {
   /// Controller for managing table data.
   final FlutterMultiTableController controller;
 
@@ -43,17 +35,14 @@ class FlutterMultiTable extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  FlutterMultiTableState createState() => FlutterMultiTableState();
-}
-
-class FlutterMultiTableState extends State<FlutterMultiTable> {
-  @override
   Widget build(BuildContext context) {
+    useListenable(controller);
+
     return Table(
       border: TableBorder.all(),
       columnWidths: {
-        for (int i = 0; i < widget.config.headers.length; i++)
-          i: widget.config.cellWidth != null ? FixedColumnWidth(widget.config.cellWidth!) : const FlexColumnWidth(),
+        for (int i = 0; i < controller.tableHeaders.length; i++)
+          i: config.cellWidth != null ? FixedColumnWidth(config.cellWidth!) : const FlexColumnWidth(),
       },
       children: [
         TableRow(
@@ -61,14 +50,14 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
             color: Colors.red,
             shape: BoxShape.rectangle,
           ),
-          children: widget.config.headers.map((header) => _buildHeaderCell(header)).toList(),
+          children: controller.tableHeaders.map((header) => _buildHeaderCell(header)).toList(),
         ),
-        ...widget.controller.tableData.asMap().entries.map((entry) {
+        ...controller.tableData.asMap().entries.map((entry) {
           int rowIndex = entry.key;
-          Map<String, TextEditingController> row = entry.value;
+          Map<String, String> row = entry.value;
           return TableRow(
             children: row.entries.map((cellEntry) {
-              int columnIndex = widget.config.headers.indexOf(cellEntry.key);
+              int columnIndex = controller.tableHeaders.indexOf(cellEntry.key);
               return _buildEditableCell(rowIndex, columnIndex, cellEntry.value);
             }).toList(),
           );
@@ -83,7 +72,9 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   Widget _buildHeaderCell(String text) {
     return GestureDetector(
       onLongPress: () async {
-        widget.config.onHeaderLongPress?.call(text);
+        if (!(config.isReadOnly ?? true)) {
+          config.onRemoveHeader?.call(text);
+        }
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -95,7 +86,7 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
             child: Text(
               text,
               textAlign: TextAlign.center,
-              style: widget.config.headerTextStyle ?? const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: config.headerTextStyle ?? const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ),
@@ -108,11 +99,10 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   /// [row] is the row index of the cell.
   /// [column] is the column index of the cell.
   /// [controller] is the text controller for the cell.
-  Widget _buildEditableCell(int row, int column, TextEditingController controller) {
-    bool isReadOnly = widget.config.isReadOnly?.call(row, column) ?? false;
-    bool isDropdown = widget.config.isDropdown?.call(row, column) ?? false;
+  Widget _buildEditableCell(int row, int column, String value) {
+    bool isReadOnly = config.isReadOnly ?? true;
 
-    return _buildText(row, column, controller, isReadOnly);
+    return _buildText(row, column, value, isReadOnly);
   }
 
   /// Builds a text field cell widget.
@@ -121,21 +111,21 @@ class FlutterMultiTableState extends State<FlutterMultiTable> {
   /// [column] is the column index of the cell.
   /// [controller] is the text controller for the cell.
   /// [isReadOnly] indicates whether the text field is read-only.
-  Widget _buildText(int row, int column, TextEditingController controller, bool isReadOnly) {
+  Widget _buildText(int row, int column, String value, bool isReadOnly) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minHeight: widget.config.cellHeight ?? 40.0,
-            minWidth: widget.config.cellWidth ?? 100.0,
+            minHeight: config.cellHeight ?? 40.0,
+            minWidth: config.cellWidth ?? 100.0,
           ),
           child: IntrinsicHeight(
             child: Text(
               "",
               maxLines: null,
               textAlign: TextAlign.center,
-              style: widget.config.cellTextStyle,
+              style: config.cellTextStyle,
             ),
           ),
         ),
