@@ -46,8 +46,8 @@ class FlutterMultiTable extends HookWidget {
       },
       children: [
         TableRow(
-          decoration: const BoxDecoration(
-            color: Colors.red,
+          decoration: BoxDecoration(
+            color: config.headerBoxColor ?? Colors.red,
             shape: BoxShape.rectangle,
           ),
           children: controller.tableHeaders.map((header) => _buildHeaderCell(header)).toList(),
@@ -71,7 +71,7 @@ class FlutterMultiTable extends HookWidget {
   /// [text] is the header text to display.
   Widget _buildHeaderCell(String text) {
     return GestureDetector(
-      onLongPress: () async {
+      onLongPress: () {
         if (!(config.isReadOnly ?? true)) {
           config.onRemoveHeader?.call(text);
         }
@@ -81,14 +81,13 @@ class FlutterMultiTable extends HookWidget {
         child: Container(
           alignment: Alignment.center,
           child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.center,
-            child: Text(
-              text,
-              textAlign: TextAlign.center,
-              style: config.headerTextStyle ?? const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: config.headerTextStyle ?? const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              )),
         ),
       ),
     );
@@ -102,7 +101,7 @@ class FlutterMultiTable extends HookWidget {
   Widget _buildEditableCell(int row, int column, String value) {
     bool isReadOnly = config.isReadOnly ?? true;
 
-    return _buildText(row, column, value, isReadOnly);
+    return _buildText(row, column, isReadOnly);
   }
 
   /// Builds a text field cell widget.
@@ -111,21 +110,60 @@ class FlutterMultiTable extends HookWidget {
   /// [column] is the column index of the cell.
   /// [controller] is the text controller for the cell.
   /// [isReadOnly] indicates whether the text field is read-only.
-  Widget _buildText(int row, int column, String value, bool isReadOnly) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: config.cellHeight ?? 40.0,
-            minWidth: config.cellWidth ?? 100.0,
-          ),
-          child: IntrinsicHeight(
-            child: Text(
-              "",
-              maxLines: null,
-              textAlign: TextAlign.center,
-              style: config.cellTextStyle,
+  Widget _buildText(int row, int column, bool isReadOnly) {
+    final value = controller.tableData[row][controller.tableData[row].keys.elementAt(column)] ?? "";
+
+    final textController = useState<TextEditingController?>(null);
+    final isEditing = useState<bool>(false);
+
+    void addTextField() {
+      isEditing.value = true;
+      textController.value = TextEditingController(text: value);
+    }
+
+    void removeTextField(bool save) {
+      if (save) {
+        config.onUpdateCell?.call(row, column, textController.value!.text);
+      }
+
+      isEditing.value = false;
+      //textController.value!.dispose();
+      //textController.value = null;
+    }
+
+    return GestureDetector(
+      onTap: () async {
+        if (!(config.isReadOnly ?? true)) {
+          addTextField();
+        }
+      },
+      child: Container(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 1.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: config.cellHeight ?? 40.0,
+                minWidth: config.cellWidth ?? 100.0,
+              ),
+              child: IntrinsicHeight(
+                child: !(isEditing.value)
+                    ? Text(
+                        value,
+                        maxLines: null,
+                        textAlign: TextAlign.center,
+                        style: config.cellTextStyle,
+                      )
+                    : TextField(
+                        controller: textController.value,
+                        decoration: const InputDecoration(
+                          fillColor: Colors.red,
+                        ),
+                        autofocus: true,
+                        onEditingComplete: () => removeTextField(true),
+                        onTapOutside: (event) => removeTextField(false),
+                      ),
+              ),
             ),
           ),
         ),

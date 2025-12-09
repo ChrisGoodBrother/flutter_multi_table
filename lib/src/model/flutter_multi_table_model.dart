@@ -39,6 +39,8 @@ class FlutterMultiTableConfig extends ChangeNotifier {
 
   void Function(String header)? onRemoveHeader;
 
+  void Function(int row, int column, String? cell)? onUpdateCell;
+
   /// Validator for text input cells.
   final String? Function(int row, int column, String value)? validator;
 
@@ -75,6 +77,7 @@ class FlutterMultiTableConfig extends ChangeNotifier {
     this.hint = "",
     this.isReadOnly,
     this.onRemoveHeader,
+    this.onUpdateCell,
     this.validator,
     this.headerTextStyle,
     this.headerBoxColor,

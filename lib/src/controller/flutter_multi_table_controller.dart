@@ -12,7 +12,7 @@ class FlutterMultiTableController extends ChangeNotifier {
   })  : tableData = initialData.map((row) {
           return {for (String header in headers) header: row[header] ?? ''};
         }).toList(),
-        tableHeaders = headers;
+        tableHeaders = List.from(headers);
 
   void createRow() {
     tableData.add(
@@ -48,8 +48,9 @@ class FlutterMultiTableController extends ChangeNotifier {
 
   /// Updates the value of a specific cell in the table.
   void updateCell(int row, int column, String value) {
+    
     if (row < tableData.length && column < tableData[row].length) {
-      tableData[row][tableData[row].values.elementAt(column)] = value;
+      tableData[row][tableHeaders[column]] = value;
     }
     notifyListeners();
   }
@@ -60,5 +61,18 @@ class FlutterMultiTableController extends ChangeNotifier {
       return tableData[row].values.elementAt(column);
     }
     return null;
+  }
+
+  @override
+  String toString() {
+    String table = "";
+
+    table += tableHeaders.join("-");
+
+    for(var row in tableData) {
+      table += "\n${row.values.join("-")}";
+    }
+
+    return table;
   }
 }
